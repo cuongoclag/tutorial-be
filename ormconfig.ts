@@ -1,9 +1,8 @@
-import dotenv from 'dotenv';
-import { DataSource } from 'typeorm';
+import { DataSource } from 'typeorm'
 
-import { SnakeNamingStrategy } from './src/snake-naming.strategy';
+import { SnakeNamingStrategy } from './src/snake-naming.strategy'
 
-dotenv.config();
+dotenv.config()
 export const dataSource = new DataSource({
   type: 'mysql',
   host: process.env.DB_HOST,
@@ -12,9 +11,6 @@ export const dataSource = new DataSource({
   password: process.env.MYSQL_PASSWORD,
   database: process.env.DB_DATABASE,
   namingStrategy: new SnakeNamingStrategy(),
-  entities: [
-    'src/modules/**/*.entity{.ts,.js}',
-    'src/modules/**/*.view-entity{.ts,.js}',
-  ],
-  migrations: ['src/database/migrations/*{.ts,.js}'],
-});
+  entities: ['src/modules/**/*.entity{.ts,.js}', 'src/modules/**/*.view-entity{.ts,.js}'],
+  migrations: ['src/database/migrations/*{.ts,.js}']
+})

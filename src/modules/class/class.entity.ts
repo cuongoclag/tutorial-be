@@ -1,43 +1,15 @@
-// import { IsNotEmpty } from 'class-validator';
-// import { Column, Entity } from 'typeorm';
+import { IsNotEmpty } from 'class-validator'
+import { AbstractEntity } from '../../common/abstract.entity'
+import { Column, Entity } from 'typeorm'
+import { ClassDto } from './dtos/class.dto'
 
-// @Entity({ name: 'class' })
-// export class ClassEntity {
-//   @Column()
-//   @IsNotEmpty()
-//   name: string;
+@Entity({ name: 'class' })
+export class ClassEntity extends AbstractEntity<ClassDto> {
+  @Column()
+  @IsNotEmpty()
+  room_number: string
 
-//   @Column({ unique: true })
-//   @IsNotEmpty()
-//   code: string;
-
-//   @Column({ nullable: true })
-//   branch?: string;
-
-//   @Column({ nullable: true })
-//   address?: string;
-
-//   @Column({ nullable: true })
-//   city?: string;
-
-//   @Column({ nullable: true })
-//   country?: string;
-
-//   @Column({ nullable: true })
-//   postalCode?: string;
-
-//   @Column({ nullable: true })
-//   contactName?: string;
-
-//   @Column({ nullable: true })
-//   department?: string;
-
-//   @Column({ nullable: true })
-//   email?: string;
-
-//   @Column({ nullable: true })
-//   phoneNumber?: string;
-
-//   @Column({ nullable: true })
-//   fax?: string;
-// }
+  @Column()
+  @IsNotEmpty()
+  capacity: string
+}

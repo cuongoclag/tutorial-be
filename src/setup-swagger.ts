@@ -1,6 +1,6 @@
 // import * as fs from 'fs';
-import type { INestApplication } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import type { INestApplication } from '@nestjs/common'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 export function setupSwagger(app: INestApplication): void {
   const documentBuilder = new DocumentBuilder()
@@ -47,24 +47,24 @@ Routes is following REST standard (Richardson level 3)
       - Logged user is not **<user_id>**
       - The **<user_id>** have no access to **<resource_id>**
 </p>
-</details>`,
+</details>`
     )
-    .addBearerAuth();
+    .addBearerAuth()
 
   if (process.env.API_VERSION) {
-    documentBuilder.setVersion(process.env.API_VERSION);
+    documentBuilder.setVersion(process.env.API_VERSION)
   }
 
-  const document = SwaggerModule.createDocument(app, documentBuilder.build());
+  const document = SwaggerModule.createDocument(app, documentBuilder.build())
 
   // export swagger-spec.json
   // fs.writeFileSync("./swagger-spec.json", JSON.stringify(document));
 
-  SwaggerModule.setup('/api/e-com/documentation', app, document, {
+  SwaggerModule.setup('/api/tutorial/documentation', app, document, {
     swaggerOptions: {
-      persistAuthorization: true,
-    },
-  });
+      persistAuthorization: true
+    }
+  })
 
-  console.info('Documentation: http://localhost:3000/api/e-com/documentation');
+  console.info('Documentation: http://localhost:3000/api/tutorial/documentation')
 }
