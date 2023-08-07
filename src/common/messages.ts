@@ -26,6 +26,9 @@ export const throwResourceException = (error) => {
   )
 }
 
+// messages for auth
+const ERROR_MSG_AUTH_EXPIRED = (err) => `Token error: ${err}`
+
 // MESSENGER
 const PASSWORD_IS_WEEK =
   'Mật khẩu phải có ít nhất 12 ký tự và chứa ít nhất 1 số, 1 ký tự đặc biệt, 1 chữ hoa, 1 chữ thường'
@@ -36,6 +39,12 @@ const EMAIL_INVALID = 'Email không hợp lệ'
 
 const USERNAME_IS_ALREADY = 'tài khoản đã tồn tại'
 
+const ERROR_MSG_AUTH_FORBIDDEN = `Cấm`
+
+const WRONG_PASSWORD = 'Sai mật khẩu'
+
+const TOKEN_INVALID = 'Token không hợp lệ'
+
 export class ErrorHandler extends Error {
   public message: string
 
@@ -45,12 +54,12 @@ export class ErrorHandler extends Error {
 
   public code: string
 
-  constructor(message: string, description: string, httpCode: number, code: string) {
+  constructor(message: string, description: string, httpCode: number) {
     super(message)
     Error.captureStackTrace(this, this.constructor)
 
     this.httpCode = httpCode || 500
-    this.code = code || ''
+
     this.description = description || ''
     this.message = JSON.stringify({
       message: this.message,
@@ -61,8 +70,8 @@ export class ErrorHandler extends Error {
   }
 }
 
-const makeError = (message: string) => (description?: any, httpCode?: number, code?: string) =>
-  new ErrorHandler(message, description, httpCode as number, code as string)
+const makeError = (message: string) => (description?: any, httpCode?: number) =>
+  new ErrorHandler(message, description, httpCode as number)
 
 export default {
   // HTTP Error Codes
@@ -77,6 +86,10 @@ export default {
   PASSWORD_IS_WEEK,
   PASSWORD_CONFIRMPASSWORD_DIFFERENT,
   USERNAME_IS_ALREADY,
+  ERROR_MSG_AUTH_FORBIDDEN,
+  WRONG_PASSWORD,
+  TOKEN_INVALID,
 
-  ResourceMakeError: makeError('io.scfpf.messages')
+  ResourceMakeError: makeError('io.scfpf.messages'),
+  ResourceForbidden: makeError('Forbidden')
 }

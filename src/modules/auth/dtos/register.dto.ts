@@ -1,22 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDateString, IsString } from 'class-validator'
+import { UserRole } from '../../../common/common.enum'
 
-export class NewPasswordDto {
-  @ApiProperty()
-  @IsString()
-  userName: string
-
+export class RegisterDto {
   @ApiProperty()
   @IsString()
   passWord: string
 
   @ApiProperty()
   @IsString()
-  newPassword?: string
+  confirmPassword?: string
 
   @IsString()
   @ApiProperty()
-  name: string
+  fullName: string
 
   @IsString()
   @ApiProperty()
@@ -28,5 +25,5 @@ export class NewPasswordDto {
 
   @IsString()
   @ApiProperty()
-  refreshToken: string
+  roleId: UserRole.ADMIN
 }

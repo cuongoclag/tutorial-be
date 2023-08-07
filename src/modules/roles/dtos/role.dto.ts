@@ -1,12 +1,12 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger'
 import { IsString } from 'class-validator'
 
-export class AuthenticationDto {
+export class RoleDto {
   @ApiProperty()
   @IsString()
-  email: string
+  roleName: string
 
   @ApiProperty()
   @IsString()
-  passWord: string
+  description: string
 }
