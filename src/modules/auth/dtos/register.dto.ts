@@ -21,9 +21,11 @@ export class RegisterDto {
 
   @ApiProperty()
   @IsDateString()
-  dateOfBirth: string
+  dateOfBirth: Date
 
-  @IsString()
+  refresh_token: string
+
   @ApiProperty()
-  roleId: UserRole.ADMIN
+  @IsString()
+  roleId: string
 }

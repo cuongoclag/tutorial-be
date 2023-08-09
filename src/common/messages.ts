@@ -45,6 +45,14 @@ const WRONG_PASSWORD = 'Sai mật khẩu'
 
 const TOKEN_INVALID = 'Token không hợp lệ'
 
+const GET_ALL_USER_FAILED = 'Lấy thông tin toàn bộ thành viên thất bại'
+
+const ROLE_INVALID = 'Bạn không có quyền truy cập'
+
+const TOKEN_EXPIRES = 'Token hết hạn, vui lòng đăng nhập lại'
+
+const USER_DO_NOT_EXIT = 'Email không tồn tại'
+
 export class ErrorHandler extends Error {
   public message: string
 
@@ -89,6 +97,10 @@ export default {
   ERROR_MSG_AUTH_FORBIDDEN,
   WRONG_PASSWORD,
   TOKEN_INVALID,
+  GET_ALL_USER_FAILED,
+  ROLE_INVALID,
+  TOKEN_EXPIRES,
+  USER_DO_NOT_EXIT,
 
   ResourceMakeError: makeError('io.scfpf.messages'),
   ResourceForbidden: makeError('Forbidden')

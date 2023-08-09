@@ -13,7 +13,16 @@ export class RolesService {
 
   async addRole(roleDto: RoleDto) {
     const { roleName, description } = roleDto
-
     await this.roleRepository.save({ roleName, description })
+  }
+
+  async getRoles() {
+    await this.roleRepository.createQueryBuilder('role').getMany()
+  }
+
+  async getRoleById(id: string) {
+    const role = await this.roleRepository.createQueryBuilder('role').where('role.id = :id', { id }).getOne()
+    console.log('🚀 ~ file: roles.service.ts:25 ~ RolesService ~ getRoleById ~ role:', role)
+    return role
   }
 }

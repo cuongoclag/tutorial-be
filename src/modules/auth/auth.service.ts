@@ -1,15 +1,6 @@
-import {
-  ConflictException,
-  Get,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-  UseGuards
-} from '@nestjs/common'
+import { isArray } from 'lodash'
+import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { AuthenticationDto } from './dtos/authentication.dto'
-import { RefreshTokenDto } from './dtos/refresh-token.dto'
 
 import { InjectRepository } from '@nestjs/typeorm'
 import { AuthEntity } from './auth.entity'
@@ -21,16 +12,17 @@ import { JwtService } from '@nestjs/jwt'
 import { RegisterResponseDto } from './dtos/register-response.dto'
 import { JwtPayload } from './dtos/jwt-payload'
 import { SignInResponse } from './dtos/login-response.dto'
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger'
-import { AuthGuard } from '@nestjs/passport'
-import { UserRole } from '../../common/common.enum'
-import { resourceLimits } from 'worker_threads'
+import { getAllResponse } from './dtos/auth.dto'
+import { RolesService } from '../roles/roles.service'
+import { UserRole } from 'common/common.enum'
+import { DeleteUsersDto } from './dtos/deleteUser.dto'
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(AuthEntity)
     private readonly authRepository: Repository<AuthEntity>,
+    private readonly roleRepository: RolesService,
     private jwtService: JwtService
   ) {}
 
@@ -79,24 +71,33 @@ export class AuthService {
 
   async signUp(authDto: RegisterDto): Promise<RegisterResponseDto> {
     const { confirmPassword, passWord, dateOfBirth, email, fullName, roleId } = authDto
-    console.log('🚀 ~ file: auth.service.ts:81 ~ AuthService ~ signUp ~ roleId:', roleId)
-
-    await this.existingUser(email)
 
     if (confirmPassword !== null) {
-      const passwordCheckMessage = this.checkPassword(confirmPassword as string, passWord as string)
-      const emailValid = this.checkEmail(email as string)
+      const role = await this.roleRepository.getRoleById(roleId)
 
-      if (passwordCheckMessage == null && emailValid == null) {
+      if (role === null) {
+        throw new HttpException(
+          messages.ResourceMakeError(messages.USERNAME_IS_ALREADY, messages.HTTP_ERROR_CODE_BAD_REQUEST),
+          HttpStatus.NOT_FOUND
+        )
+      }
+
+      const passwordCheckMessage = this.checkPassword(confirmPassword as string, passWord as string)
+      const emailValid = this.checkEmail(email)
+
+      if (passwordCheckMessage === null && emailValid === null) {
         const salt = await bcrypt.genSalt()
         const hashedPassword = await bcrypt.hash(passWord, salt)
-        const user = this.authRepository.create({
-          email,
-          dateOfBirth,
-          fullName,
-          passWord: hashedPassword
-        })
-        await this.authRepository.save(user)
+
+        const auth = new AuthEntity()
+        auth.roleId = role
+        auth.email = email
+        auth.dateOfBirth = dateOfBirth
+        auth.fullName = fullName
+        auth.passWord = hashedPassword
+        auth.refresh_token = ''
+
+        await this.authRepository.save(auth)
       }
       return { email, passWord }
     } else {
@@ -138,7 +139,6 @@ export class AuthService {
           HttpStatus.BAD_REQUEST
         )
       }
-      console.log(verify)
     } catch (error) {
       throw new HttpException(
         messages.ResourceForbidden(messages.TOKEN_INVALID, messages.HTTP_ERROR_CODE_BAD_REQUEST),
@@ -147,8 +147,36 @@ export class AuthService {
     }
   }
 
-  async getUser() {
-    return '123'
+  async getUser(): Promise<getAllResponse[]> {
+    const result: AuthEntity[] = await this.authRepository
+      .createQueryBuilder('auth')
+      .leftJoin('auth.roleId', 'role')
+      .select(['role', 'auth'])
+      .getMany()
+
+    if (result.length === 0) {
+      throw new HttpException(
+        messages.ResourceForbidden(messages.GET_ALL_USER_FAILED, messages.HTTP_ERROR_CODE_BAD_REQUEST),
+        HttpStatus.NOT_FOUND
+      )
+    }
+
+    const getUserPromises = result.map(async (user) => {
+      const { email, dateOfBirth, fullName, roleId } = user
+
+      const allUser: getAllResponse = {
+        role_name: roleId.roleName,
+        fullName,
+        email,
+        dateOfBirth
+      }
+
+      return allUser
+    })
+
+    const allUsers = await Promise.all(getUserPromises)
+
+    return allUsers
   }
 
   async generateToken(payload: JwtPayload) {
@@ -163,14 +191,41 @@ export class AuthService {
   }
 
   async getUserById(id: string) {
-    console.log('run 134', id)
     const result = await this.authRepository
       .createQueryBuilder('auth')
       .leftJoin('auth.roleId', 'role')
       .select(['role', 'auth'])
       .where('auth.id = :id', { id })
       .getRawOne()
-    console.log('🚀 ~ file: auth.service.ts:133 ~ AuthService ~ getUserById ~ result:', result)
+
     return result
+  }
+
+  async deleteUsers(dto: DeleteUsersDto): Promise<void> {
+    const { emails, email } = dto
+    console.log('🚀 ~ file: auth.service.ts:206 ~ AuthService ~ deleteUsers ~ email:', email)
+    console.log('🚀 ~ file: auth.service.ts:206 ~ AuthService ~ deleteUsers ~ emails:', emails)
+
+    if (email) {
+      const user = await this.authRepository.findOne({ where: { email } })
+
+      if (!user) {
+        throw new NotFoundException(`User with email ${email} not found`)
+      }
+
+      await this.authRepository.remove(user)
+    } else {
+      const deletePromises = emails.map(async (email) => {
+        const user = await this.authRepository.findOne({ where: { email } })
+
+        if (!user) {
+          throw new NotFoundException(`User with email ${email} not found`)
+        }
+
+        await this.authRepository.remove(user)
+      })
+
+      await Promise.all(deletePromises)
+    }
   }
 }

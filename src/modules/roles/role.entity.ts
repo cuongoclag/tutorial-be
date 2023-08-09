@@ -7,7 +7,7 @@ export class RoleEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column()
+  @Column({ unique: true })
   @IsNotEmpty()
   @IsString()
   roleName: string

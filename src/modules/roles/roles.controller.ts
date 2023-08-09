@@ -1,9 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Get, Post } from '@nestjs/common'
 import { RoleDto } from './dtos/role.dto'
 import { RolesService } from './roles.service'
-import { ApiBody, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 
 @Controller('roles')
+@ApiTags('Role')
 export class RolesController {
   constructor(private rolesService: RolesService) {}
 
@@ -18,5 +19,11 @@ export class RolesController {
   })
   async signIn(@Body() roleDto: RoleDto) {
     return this.rolesService.addRole(roleDto)
+  }
+
+  @Get('getRoles')
+  @ApiOperation({ summary: 'Get role' })
+  async getRoles() {
+    return this.rolesService.getRoles()
   }
 }

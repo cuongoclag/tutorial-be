@@ -1,8 +1,16 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
+import {
+  CanActivate,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
 import { AuthService } from './../modules/auth/auth.service'
 import { UserRole } from '../common/common.enum'
+import messages from '../common/messages'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -32,10 +40,16 @@ export class AuthGuard implements CanActivate {
 
       // Optionally check for user role
       if (user.role_role_name !== UserRole.ADMIN) {
-        throw new UnauthorizedException()
+        throw new HttpException(
+          messages.ResourceForbidden(messages.ROLE_INVALID, messages.HTTP_ERROR_CODE_UNAUTHORIZED),
+          HttpStatus.UNAUTHORIZED
+        )
       }
     } catch (error) {
-      throw new UnauthorizedException()
+      throw new HttpException(
+        messages.ResourceForbidden(messages.TOKEN_EXPIRES, messages.HTTP_ERROR_CODE_UNAUTHORIZED),
+        HttpStatus.UNAUTHORIZED
+      )
     }
 
     return true
