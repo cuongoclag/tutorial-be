@@ -201,31 +201,28 @@ export class AuthService {
     return result
   }
 
-  async deleteUsers(dto: DeleteUsersDto): Promise<void> {
-    const { emails, email } = dto
-    console.log('🚀 ~ file: auth.service.ts:206 ~ AuthService ~ deleteUsers ~ email:', email)
-    console.log('🚀 ~ file: auth.service.ts:206 ~ AuthService ~ deleteUsers ~ emails:', emails)
+  async deleteUserByEmail(email: string): Promise<string> {
+    const user = await this.authRepository.findOne({ where: { email } })
 
-    if (email) {
-      const user = await this.authRepository.findOne({ where: { email } })
-
-      if (!user) {
-        throw new NotFoundException(`User with email ${email} not found`)
-      }
-
-      await this.authRepository.remove(user)
-    } else {
-      const deletePromises = emails.map(async (email) => {
-        const user = await this.authRepository.findOne({ where: { email } })
-
-        if (!user) {
-          throw new NotFoundException(`User with email ${email} not found`)
-        }
-
-        await this.authRepository.remove(user)
-      })
-
-      await Promise.all(deletePromises)
+    if (!user) {
+      throw new HttpException(
+        messages.ResourceForbidden(messages.USER_DO_NOT_EXIT, messages.HTTP_ERROR_CODE_BAD_REQUEST),
+        HttpStatus.NOT_FOUND
+      )
     }
+
+    await this.authRepository.remove(user)
+
+    return 'Người dùng đã được xoá'
+  }
+
+  async deleteUsersByEmails(emails: string[]): Promise<string> {
+    const deletePromises = emails.map(async (email) => {
+      await this.deleteUserByEmail(email)
+    })
+
+    await Promise.all(deletePromises)
+
+    return 'Người dùng đã được xoá'
   }
 }

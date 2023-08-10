@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  UseGuards
+} from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AuthenticationDto } from './dtos/authentication.dto'
@@ -59,17 +70,21 @@ export class AuthController {
     return this.authService.getUser()
   }
 
-  @Delete(':email/delete')
-  @UseGuards(AuthGuard)
+  @Delete('delete')
+  @ApiOperation({ summary: 'Delete user' })
   @ApiBearerAuth()
-  async deleteUser(@Body() usersDto: DeleteUsersDto): Promise<boolean> {
-    console.log('🚀 ~ file: auth.controller.ts:66 ~ AuthController ~ deleteUser ~ usersDto:', usersDto)
-    try {
-      await this.authService.deleteUsers(usersDto)
+  @ApiOkResponse({
+    type: DeleteUsersDto,
+    description: 'Delete is success'
+  })
+  @UseGuards(AuthGuard)
+  async deleteUsers(@Body() dto: DeleteUsersDto) {
+    const { emails } = dto
 
-      return true
-    } catch (error) {
-      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR)
+    if (emails.length === 1) {
+      return await this.authService.deleteUserByEmail(emails[0])
+    } else {
+      return await this.authService.deleteUsersByEmails(emails)
     }
   }
 }

@@ -1,11 +1,8 @@
-import { IsArray, IsOptional, IsString } from 'class-validator'
+import { ArrayNotEmpty, IsArray, IsEmail, IsOptional, IsString } from 'class-validator'
 
 export class DeleteUsersDto {
   @IsArray()
-  @IsString({ each: true })
+  @ArrayNotEmpty()
+  @IsEmail({}, { each: true })
   emails: string[]
-
-  @IsOptional()
-  @IsString()
-  email?: string
 }
