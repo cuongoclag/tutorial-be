@@ -53,6 +53,7 @@ const TOKEN_EXPIRES = 'Token hết hạn, vui lòng đăng nhập lại'
 
 const USER_DO_NOT_EXIT = 'Email không tồn tại'
 
+const ROLE_NOT_EXIT = 'Role không hợp lệ'
 export class ErrorHandler extends Error {
   public message: string
 
@@ -101,6 +102,7 @@ export default {
   ROLE_INVALID,
   TOKEN_EXPIRES,
   USER_DO_NOT_EXIT,
+  ROLE_NOT_EXIT,
 
   ResourceMakeError: makeError('io.scfpf.messages'),
   ResourceForbidden: makeError('Forbidden')

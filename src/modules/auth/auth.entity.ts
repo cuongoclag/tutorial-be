@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator'
 import { RoleEntity } from '../roles/role.entity'
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { TeacherEntity } from '../teachers/teacher.entity'
 
 @Entity({ name: 'auth' })
 export class AuthEntity {
@@ -10,7 +11,7 @@ export class AuthEntity {
   @Column()
   @IsNotEmpty()
   @IsString()
-  passWord: string
+  password: string
 
   @Column()
   @IsString()
@@ -36,4 +37,8 @@ export class AuthEntity {
     name: 'role_id'
   })
   roleId: RoleEntity
+
+  @OneToOne(() => TeacherEntity, (teacher) => teacher.auth_id)
+  // @JoinColumn({ name: 'auth_id' })
+  teacher: TeacherEntity
 }

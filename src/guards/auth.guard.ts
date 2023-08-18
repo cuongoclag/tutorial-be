@@ -11,12 +11,15 @@ import { Request } from 'express'
 import { AuthService } from './../modules/auth/auth.service'
 import { UserRole } from '../common/common.enum'
 import messages from '../common/messages'
+import { Reflector } from '@nestjs/core'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService, private jwtService: JwtService) {}
+  constructor(private authService: AuthService, private jwtService: JwtService, private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const roles = this.reflector.get<string[]>('roles', context.getHandler())
+
     const request = context.switchToHttp().getRequest<Request>()
     const token = this.extractTokenFromHeader(request)
 
@@ -39,11 +42,8 @@ export class AuthGuard implements CanActivate {
       request.user = user // Attach the user to the request
 
       // Optionally check for user role
-      if (user.role_role_name !== UserRole.ADMIN) {
-        throw new HttpException(
-          messages.ResourceForbidden(messages.ROLE_INVALID, messages.HTTP_ERROR_CODE_UNAUTHORIZED),
-          HttpStatus.UNAUTHORIZED
-        )
+      if (user) {
+        return roles.some((role) => role === user.role_role_name)
       }
     } catch (error) {
       throw new HttpException(

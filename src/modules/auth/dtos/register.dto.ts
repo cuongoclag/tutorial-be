@@ -1,11 +1,10 @@
+import { IsDateString, IsString, IsNumber, IsOptional } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDateString, IsString } from 'class-validator'
-import { UserRole } from '../../../common/common.enum'
 
 export class RegisterDto {
   @ApiProperty()
   @IsString()
-  passWord: string
+  password: string
 
   @ApiProperty()
   @IsString()
@@ -28,4 +27,9 @@ export class RegisterDto {
   @ApiProperty()
   @IsString()
   roleId: string
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  hourlyRate?: number
 }

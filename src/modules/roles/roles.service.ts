@@ -22,7 +22,7 @@ export class RolesService {
 
   async getRoleById(id: string) {
     const role = await this.roleRepository.createQueryBuilder('role').where('role.id = :id', { id }).getOne()
-    console.log('🚀 ~ file: roles.service.ts:25 ~ RolesService ~ getRoleById ~ role:', role)
+
     return role
   }
 }

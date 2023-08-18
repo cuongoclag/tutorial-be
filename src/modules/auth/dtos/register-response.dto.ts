@@ -9,5 +9,5 @@ export class RegisterResponseDto {
 
   @ApiProperty()
   @IsString()
-  passWord: string
+  password: string
 }

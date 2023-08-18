@@ -8,5 +8,5 @@ export class AuthenticationDto {
 
   @ApiProperty()
   @IsString()
-  passWord: string
+  password: string
 }
